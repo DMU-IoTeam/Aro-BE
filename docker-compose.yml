@@ -1,0 +1,29 @@
+version: '3'
+services:
+  mariadb:
+    image: mariadb:10.7
+    container_name: aro-mariadb
+    restart: always
+    ports:
+      - "13306:3306"
+    environment:
+      TZ: Asia/Seoul
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+    volumes:
+      - aro-mariadb-data:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: aro-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - aro-redis-data:/data
+
+volumes:
+  aro-mariadb-data:
+  aro-redis-data:
