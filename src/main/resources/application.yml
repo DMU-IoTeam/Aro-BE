@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mariadb://localhost:13306/${DATABASE_NAME}
+    url: ${DATABASE_URL}
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
@@ -20,3 +20,7 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
