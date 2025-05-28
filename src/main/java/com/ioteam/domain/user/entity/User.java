@@ -1,6 +1,7 @@
 package com.ioteam.domain.user.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -22,15 +23,15 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column()
     private String password;
 
     private String phone;
 
-    private String birthDate;
+    private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -39,6 +40,9 @@ public class User {
 
     private String profileImage;
 
+    private String medicalHistory;
+    private String bloodType;
+
     private String firebaseToken;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,7 +50,6 @@ public class User {
     private User guardian;
 
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
 
     @PrePersist
@@ -70,4 +73,5 @@ public class User {
     public void encodePassword(PasswordEncoder encoder) {
         this.password = encoder.encode(this.password);
     }
+
 }
