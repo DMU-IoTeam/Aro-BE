@@ -1,11 +1,16 @@
 package com.ioteam.auth;
 
 import com.ioteam.auth.dto.LoginRequest;
+import com.ioteam.auth.dto.SeniorRegisterRequest;
+import com.ioteam.auth.dto.SeniorRegisterResponse;
 import com.ioteam.auth.dto.SignupRequest;
 import com.ioteam.auth.dto.AuthResponse;
 import com.ioteam.domain.user.entity.User;
+import com.ioteam.domain.user.entity.User.Gender;
+import com.ioteam.domain.user.entity.User.Role;
 import com.ioteam.domain.user.repository.UserRepository;
 import com.ioteam.security.jwt.JwtProvider;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -59,4 +64,34 @@ public class UserService {
             user.getRole().name()
         );
     }
+    public SeniorRegisterResponse registerSenior(SeniorRegisterRequest request, Long guardianId) {
+        User guardian = userRepository.findById(guardianId)
+            .orElseThrow(() -> new UsernameNotFoundException("보호자를 찾을 수 없습니다."));
+
+        User senior = User.builder()
+            .name(request.getName())
+            .birthDate(LocalDate.parse(request.getBirthDate()))
+            .gender(Gender.valueOf(request.getGender()))
+            .address(request.getAddress())
+            .medicalHistory(request.getMedicalHistory())
+            .bloodType(request.getBloodType())
+            .profileImage(request.getProfileImage())
+            .role(Role.SENIOR)
+            .guardian(guardian)
+            .build();
+
+        userRepository.save(senior);
+
+        return new SeniorRegisterResponse(
+            senior.getId(),
+            senior.getName(),
+            senior.getBirthDate().toString(),
+            senior.getGender().name(),
+            senior.getAddress(),
+            senior.getMedicalHistory(),
+            senior.getBloodType(),
+            senior.getProfileImage()
+        );
+    }
+
 }
