@@ -6,6 +6,7 @@ import com.ioteam.auth.dto.SeniorRegisterResponse;
 import com.ioteam.domain.user.entity.User;
 import com.ioteam.domain.user.repository.UserRepository;
 import com.ioteam.security.service.CustomUserDetails;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,5 +39,28 @@ public class UserController {
         SeniorRegisterResponse response = userService.registerSenior(request, userDetails.getId());
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/senior/{id}")
+    public ResponseEntity<SeniorRegisterResponse> updateSenior(
+        @PathVariable Long id,
+        @RequestBody SeniorRegisterRequest request,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(userService.updateSenior(id, request, userDetails.getId()));
+    }
+
+    @DeleteMapping("/senior/{id}")
+    public ResponseEntity<?> deleteSenior(
+        @PathVariable Long id,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        userService.deleteSenior(id, userDetails.getId());
+        return ResponseEntity.ok("삭제 완료");
+    }
+
+    @GetMapping("/seniors")
+    public ResponseEntity<List<SeniorRegisterResponse>> getSeniors(
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(userService.findSeniorsByGuardian(userDetails.getId()));
+    }
+
 
 }
