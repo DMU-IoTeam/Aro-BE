@@ -74,4 +74,15 @@ public class User {
         this.password = encoder.encode(this.password);
     }
 
+    public void updateSeniorInfo(String name, LocalDate birthDate, Gender gender,
+        String address, String medicalHistory, String bloodType, String profileImage) {
+        this.name = name;
+        this.birthDate = birthDate;
+        this.gender = gender;
+        this.address = address;
+        this.medicalHistory = medicalHistory;
+        this.bloodType = bloodType;
+        this.profileImage = profileImage;
+    }
+
 }
