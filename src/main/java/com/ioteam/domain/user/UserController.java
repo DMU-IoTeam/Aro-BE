@@ -62,5 +62,11 @@ public class UserController {
         return ResponseEntity.ok(userService.findSeniorsByGuardian(userDetails.getId()));
     }
 
-
+    @PatchMapping("/me/firebase-token")
+    public ResponseEntity<?> updateFirebaseToken(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @RequestBody String token) {
+        userService.updateFirebaseToken(userDetails.getId(), token);
+        return ResponseEntity.ok("Firebase 토큰이 업데이트되었습니다.");
+    }
 }

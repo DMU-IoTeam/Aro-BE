@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,7 +25,6 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    @Column()
     private String password;
 
     private String phone;
@@ -85,4 +83,7 @@ public class User {
         this.profileImage = profileImage;
     }
 
+    public void updateFirebaseToken(String firebaseToken) {
+        this.firebaseToken = firebaseToken;
+    }
 }

@@ -6,6 +6,7 @@ import com.ioteam.domain.careevent.entity.CareEvent;
 import com.ioteam.domain.careevent.repository.CareEventRepository;
 import com.ioteam.domain.user.entity.User;
 import com.ioteam.domain.user.repository.UserRepository;
+import com.ioteam.global.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class CareEventService {
 
     private final CareEventRepository careEventRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public CareEventResponse createCareEvent(CareEventRequest request) {
         User senior = userRepository.findById(request.getSeniorId())
@@ -30,6 +32,16 @@ public class CareEventService {
             .build();
 
         careEventRepository.save(event);
+
+        User guardian = senior.getGuardian();
+        if (guardian != null && guardian.getFirebaseToken() != null) {
+            notificationService.sendPushNotification(
+                guardian.getFirebaseToken(),
+                "낙상 감지",
+                senior.getName() + " 님에게 낙상이 감지되었습니다."
+            );
+        }
+
         return CareEventResponse.from(event);
     }
 

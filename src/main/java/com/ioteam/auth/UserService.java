@@ -19,6 +19,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +68,7 @@ public class UserService {
             user.getRole().name()
         );
     }
+
     public SeniorRegisterResponse registerSenior(SeniorRegisterRequest request, Long guardianId) {
         User guardian = userRepository.findById(guardianId)
             .orElseThrow(() -> new UsernameNotFoundException("보호자를 찾을 수 없습니다."));
@@ -155,4 +157,10 @@ public class UserService {
         )).collect(Collectors.toList());
     }
 
+    @Transactional
+    public void updateFirebaseToken(Long userId, String token) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        user.updateFirebaseToken(token);
+    }
 }
