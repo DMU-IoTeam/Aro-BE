@@ -43,3 +43,6 @@ bin/
 
 # 환경 변수
 .env
+
+# firebase key json
+src/main/resources/firebase-service-key.json
