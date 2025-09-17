@@ -43,6 +43,12 @@ public class SecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/swagger-resources/**",
+                    "/webjars/**"
+                ).permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/users/signup").permitAll()
                 .anyRequest().authenticated()
@@ -51,7 +57,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
