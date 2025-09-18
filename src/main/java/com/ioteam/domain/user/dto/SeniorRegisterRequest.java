@@ -1,14 +1,11 @@
-package com.ioteam.auth.dto;
+package com.ioteam.domain.user.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-public class SeniorRegisterResponse {
-    private Long id;
+public class SeniorRegisterRequest {
     private String name;
     private String birthDate;
     private String gender;

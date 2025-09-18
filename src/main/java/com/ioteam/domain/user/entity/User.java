@@ -3,7 +3,6 @@ package com.ioteam.domain.user.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,6 +16,9 @@ public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
+    private Long kakaoId;
+
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -24,8 +26,6 @@ public class User {
 
     @Column(unique = true)
     private String email;
-
-    private String password;
 
     private String phone;
 
@@ -50,6 +50,15 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public static User createKakaoUser(Long kakaoId, String name, String email) {
+        return User.builder()
+            .kakaoId(kakaoId)
+            .name(name)
+            .email(email)
+            .role(Role.GUARDIAN)
+            .build();
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
@@ -66,10 +75,6 @@ public class User {
 
     public enum Gender {
         MALE, FEMALE, OTHER
-    }
-
-    public void encodePassword(PasswordEncoder encoder) {
-        this.password = encoder.encode(this.password);
     }
 
     public void updateSeniorInfo(String name, LocalDate birthDate, Gender gender,
