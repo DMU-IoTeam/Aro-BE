@@ -8,12 +8,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -28,19 +33,19 @@ public class JwtProvider {
 
     private Key key;
 
-    private final UserDetailsService userDetailsService;
-
     @PostConstruct
     public void init() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public String generateToken(String email) {
+    public String createToken(String email, String role) {
+        Claims claims = Jwts.claims().setSubject(email);
+        claims.put("role", role);
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
-            .setSubject(email)
+            .setClaims(claims)
             .setIssuedAt(now)
             .setExpiration(expiry)
             .signWith(key, SignatureAlgorithm.HS256)
@@ -56,16 +61,25 @@ public class JwtProvider {
         }
     }
 
-    public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
+    public Claims getClaimsFromToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build()
             .parseClaimsJws(token).getBody();
-        return claims.getSubject();
     }
 
     public Authentication getAuthentication(String token) {
-        String email = getEmailFromToken(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        Claims claims = getClaimsFromToken(token);
+        String email = claims.getSubject();
+        String role = claims.get("role", String.class);
+
+        Collection<? extends GrantedAuthority> authorities =
+            Arrays.stream(new String[]{role})
+                .map(auth -> "ROLE_" + auth)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+
+        UserDetails principal = new User(email, "", authorities);
+
+        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
     public String resolveToken(HttpServletRequest request) {
@@ -75,5 +89,4 @@ public class JwtProvider {
         }
         return null;
     }
-
 }
