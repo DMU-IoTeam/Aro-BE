@@ -1,6 +1,7 @@
 package com.ioteam.domain.user;
 
 import com.ioteam.auth.UserService;
+import com.ioteam.domain.user.dto.FirebaseTokenRequest;
 import com.ioteam.domain.user.dto.SeniorRegisterRequest;
 import com.ioteam.domain.user.dto.SeniorRegisterResponse;
 import com.ioteam.domain.user.entity.User;
@@ -84,12 +85,11 @@ public class UserController {
     }
 
     @PatchMapping("/me/firebase-token")
-    @Operation(summary = "Firebase 토큰 등록/업데이트", description = "보호자 앱에서 받은 Firebase 토큰을 서버에 등록/갱신합니다.")
     public ResponseEntity<?> updateFirebaseToken(
         Authentication authentication,
-        @RequestBody @Parameter(description = "Firebase 푸시 토큰") String token) {
+        @RequestBody FirebaseTokenRequest request) {
         User user = getUserByAuth(authentication);
-        userService.updateFirebaseToken(user.getId(), token);
+        userService.updateFirebaseToken(user.getId(), request.getToken());
         return ResponseEntity.ok("Firebase 토큰이 업데이트되었습니다.");
     }
 }
