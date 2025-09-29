@@ -6,12 +6,10 @@ services:
     restart: always
     ports:
       - "13306:3306"
+    env_file:
+      - ./.env
     environment:
       TZ: Asia/Seoul
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
-      MARIADB_USER: ${MARIADB_USER}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
-      MARIADB_DATABASE: ${MARIADB_DATABASE}
     volumes:
       - aro-mariadb-data:/var/lib/mysql
 
@@ -23,6 +21,22 @@ services:
       - "6379:6379"
     volumes:
       - aro-redis-data:/data
+
+  app:
+    build: .
+    container_name: aro-app
+    restart: always
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/${MARIADB_DATABASE}?serverTimezone=Asia/Seoul
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      - mariadb
+      - redis
 
 volumes:
   aro-mariadb-data:
