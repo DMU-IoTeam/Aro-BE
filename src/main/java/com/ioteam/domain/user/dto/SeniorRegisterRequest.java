@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class SeniorRegisterRequest {
     private String name;
+    private String email;
     private String birthDate;
     private String gender;
     private String address;

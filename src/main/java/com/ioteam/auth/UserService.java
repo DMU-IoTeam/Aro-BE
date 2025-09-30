@@ -1,5 +1,7 @@
 package com.ioteam.auth;
 
+import com.ioteam.auth.dto.AuthResponse;
+import com.ioteam.auth.dto.SeniorLoginRequest;
 import com.ioteam.domain.user.dto.SeniorRegisterRequest;
 import com.ioteam.domain.user.dto.SeniorRegisterResponse;
 import com.ioteam.domain.user.entity.User;
@@ -14,12 +16,14 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.ioteam.security.jwt.JwtProvider;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public User processOAuth2User(Long kakaoId, String email, String name) {
@@ -36,6 +40,7 @@ public class UserService {
 
         User senior = User.builder()
             .name(request.getName())
+            .email(request.getEmail())
             .birthDate(LocalDate.parse(request.getBirthDate()))
             .gender(Gender.valueOf(request.getGender()))
             .address(request.getAddress())
@@ -123,5 +128,15 @@ public class UserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
         user.updateFirebaseToken(token);
+    }
+
+    public AuthResponse loginSenior(SeniorLoginRequest request) {
+        User senior = userRepository.findByEmail(request.getEmail())
+            .filter(user -> user.getRole() == Role.SENIOR)
+            .orElseThrow(() -> new UsernameNotFoundException("피보호자 계정을 찾을 수 없습니다."));
+
+        String accessToken = jwtProvider.createToken(senior.getEmail(), senior.getRole().name());
+
+        return new AuthResponse(accessToken);
     }
 }

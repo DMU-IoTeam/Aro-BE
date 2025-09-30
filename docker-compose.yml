@@ -32,6 +32,7 @@ services:
       - ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/${MARIADB_DATABASE}?serverTimezone=Asia/Seoul
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: DEBUG
     volumes:
       - ./uploads:/app/uploads
     depends_on:

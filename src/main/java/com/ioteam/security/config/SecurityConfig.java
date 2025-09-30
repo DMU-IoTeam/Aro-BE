@@ -43,6 +43,7 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/swagger-resources/**"
                 ).permitAll()
+                .requestMatchers("/api/auth/login/senior").permitAll()
                 .requestMatchers("/login/oauth2/code/**", "/oauth2/authorization/**").permitAll()
                 .anyRequest().authenticated()
             )
