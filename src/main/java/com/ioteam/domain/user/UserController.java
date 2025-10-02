@@ -4,6 +4,7 @@ import com.ioteam.auth.UserService;
 import com.ioteam.domain.user.dto.FirebaseTokenRequest;
 import com.ioteam.domain.user.dto.SeniorRegisterRequest;
 import com.ioteam.domain.user.dto.SeniorRegisterResponse;
+import com.ioteam.domain.user.dto.UserInfoResponse;
 import com.ioteam.domain.user.entity.User;
 import com.ioteam.domain.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -91,5 +92,16 @@ public class UserController {
         User user = getUserByAuth(authentication);
         userService.updateFirebaseToken(user.getId(), request.getToken());
         return ResponseEntity.ok("Firebase 토큰이 업데이트되었습니다.");
+    }
+
+    @PatchMapping("/seniors/{seniorId}/firebase-token")
+    public ResponseEntity<String> registerSeniorDeviceToken(
+        @PathVariable Long seniorId,
+        @RequestBody FirebaseTokenRequest request,
+        Authentication authentication) {
+
+        User guardian = getUserByAuth(authentication);
+        userService.registerSeniorDevice(guardian.getId(), seniorId, request.getToken());
+        return ResponseEntity.ok("피보호자의 기기 토큰이 성공적으로 등록되었습니다.");
     }
 }

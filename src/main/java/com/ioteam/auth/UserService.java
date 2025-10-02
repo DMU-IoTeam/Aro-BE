@@ -69,7 +69,7 @@ public class UserService {
         User senior = userRepository.findById(seniorId)
             .orElseThrow(() -> new IllegalArgumentException("피보호자를 찾을 수 없습니다."));
 
-        if (!senior.getGuardian().getId().equals(guardianId)) {
+        if (senior.getGuardian() == null || !senior.getGuardian().getId().equals(guardianId)) {
             throw new AccessDeniedException("해당 피보호자에 대한 권한이 없습니다.");
         }
 
@@ -101,7 +101,7 @@ public class UserService {
         User senior = userRepository.findById(seniorId)
             .orElseThrow(() -> new IllegalArgumentException("피보호자를 찾을 수 없습니다."));
 
-        if (!senior.getGuardian().getId().equals(guardianId)) {
+        if (senior.getGuardian() == null || !senior.getGuardian().getId().equals(guardianId)) {
             throw new AccessDeniedException("해당 피보호자에 대한 권한이 없습니다.");
         }
 
@@ -138,5 +138,17 @@ public class UserService {
         String accessToken = jwtProvider.createToken(senior.getEmail(), senior.getRole().name());
 
         return new AuthResponse(accessToken);
+    }
+
+    @Transactional
+    public void registerSeniorDevice(Long guardianId, Long seniorId, String fcmToken) {
+        User senior = userRepository.findById(seniorId)
+            .orElseThrow(() -> new UsernameNotFoundException("해당 피보호자를 찾을 수 없습니다."));
+
+        if (senior.getGuardian() == null || !senior.getGuardian().getId().equals(guardianId)) {
+            throw new AccessDeniedException("해당 피보호자에 대한 권한이 없습니다.");
+        }
+
+        senior.updateFirebaseToken(fcmToken);
     }
 }
