@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -29,6 +28,7 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
     private final UserService userService;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/login/oauth2/code/**", "/oauth2/authorization/**").permitAll()
                 .anyRequest().authenticated()
             )
+            .exceptionHandling(e -> e.authenticationEntryPoint(customAuthenticationEntryPoint))
             .oauth2Login(oauth2 -> oauth2
                 .successHandler(successHandler())
             )
