@@ -6,6 +6,7 @@ import com.ioteam.domain.careevent.entity.CareEvent;
 import com.ioteam.domain.careevent.entity.FallVideoClip;
 import com.ioteam.domain.careevent.repository.CareEventRepository;
 import com.ioteam.domain.careevent.repository.FallVideoClipRepository;
+import com.ioteam.global.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class FallVideoClipService {
 
     public FallVideoClipResponse addClip(Long eventId, FallVideoClipRequest request) {
         CareEvent event = careEventRepository.findById(eventId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 이벤트를 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("해당 이벤트를 찾을 수 없습니다."));
 
         FallVideoClip clip = FallVideoClip.builder()
             .careEvent(event)

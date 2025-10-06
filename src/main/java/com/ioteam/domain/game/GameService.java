@@ -8,6 +8,7 @@ import com.ioteam.domain.game.repository.GameResultRepository;
 import com.ioteam.domain.game.repository.PhotoRepository;
 import com.ioteam.domain.user.entity.User;
 import com.ioteam.domain.user.repository.UserRepository;
+import com.ioteam.global.exception.EntityNotFoundException;
 import com.ioteam.global.storage.FileUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -57,7 +58,7 @@ public class GameService {
     @Transactional(readOnly = true)
     public List<PhotoResponse> getPhotosForGame(Long seniorId) {
         User senior = userRepository.findById(seniorId)
-            .orElseThrow(() -> new IllegalArgumentException("피보호자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("피보호자를 찾을 수 없습니다."));
 
         User guardian = senior.getGuardian();
         if (guardian == null) {
@@ -75,7 +76,7 @@ public class GameService {
     @Transactional(readOnly = true)
     public boolean checkAnswer(Long photoId, String userAnswer) {
         Photo photo = photoRepository.findById(photoId)
-            .orElseThrow(() -> new IllegalArgumentException("사진을 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("사진을 찾을 수 없습니다."));
 
         if (userAnswer == null || userAnswer.trim().isEmpty()) {
             return false;
@@ -92,7 +93,7 @@ public class GameService {
     @Transactional
     public void saveGameResult(GameResultRequest request) {
         User senior = userRepository.findById(request.getSeniorId())
-            .orElseThrow(() -> new IllegalArgumentException("피보호자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("피보호자를 찾을 수 없습니다."));
 
         GameResult result = GameResult.builder()
             .senior(senior)

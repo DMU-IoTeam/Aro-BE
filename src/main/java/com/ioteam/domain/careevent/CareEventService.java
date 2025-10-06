@@ -6,8 +6,10 @@ import com.ioteam.domain.careevent.entity.CareEvent;
 import com.ioteam.domain.careevent.repository.CareEventRepository;
 import com.ioteam.domain.user.entity.User;
 import com.ioteam.domain.user.repository.UserRepository;
+import com.ioteam.global.exception.EntityNotFoundException;
 import com.ioteam.global.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +25,7 @@ public class CareEventService {
 
     public CareEventResponse createCareEvent(CareEventRequest request) {
         User senior = userRepository.findById(request.getSeniorId())
-            .orElseThrow(() -> new IllegalArgumentException("해당 피보호자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("해당 피보호자를 찾을 수 없습니다."));
 
         CareEvent event = CareEvent.builder()
             .senior(senior)
@@ -54,18 +56,18 @@ public class CareEventService {
 
     public CareEventResponse getEvent(Long id, User guardian) {
         CareEvent event = careEventRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
-        if (!event.getSenior().getGuardian().getId().equals(guardian.getId())) {
-            throw new SecurityException("이 이벤트에 접근할 권한이 없습니다.");
+            .orElseThrow(() -> new EntityNotFoundException("이벤트를 찾을 수 없습니다."));
+        if (event.getSenior().getGuardian() == null || !event.getSenior().getGuardian().getId().equals(guardian.getId())) {
+            throw new AccessDeniedException("이 이벤트에 접근할 권한이 없습니다.");
         }
         return CareEventResponse.from(event);
     }
 
     public CareEventResponse ackEvent(Long id, User guardian) {
         CareEvent event = careEventRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
-        if (!event.getSenior().getGuardian().getId().equals(guardian.getId())) {
-            throw new SecurityException("이 이벤트를 확인할 권한이 없습니다.");
+            .orElseThrow(() -> new EntityNotFoundException("이벤트를 찾을 수 없습니다."));
+        if (event.getSenior().getGuardian() == null || !event.getSenior().getGuardian().getId().equals(guardian.getId())) {
+            throw new AccessDeniedException("이 이벤트를 확인할 권한이 없습니다.");
         }
         event.ack();
         careEventRepository.save(event);

@@ -8,15 +8,15 @@ import com.ioteam.domain.user.entity.User;
 import com.ioteam.domain.user.entity.User.Gender;
 import com.ioteam.domain.user.entity.User.Role;
 import com.ioteam.domain.user.repository.UserRepository;
+import com.ioteam.global.exception.EntityNotFoundException;
+import com.ioteam.security.jwt.JwtProvider;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.ioteam.security.jwt.JwtProvider;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class UserService {
 
     public SeniorRegisterResponse registerSenior(SeniorRegisterRequest request, Long guardianId) {
         User guardian = userRepository.findById(guardianId)
-            .orElseThrow(() -> new UsernameNotFoundException("보호자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("보호자를 찾을 수 없습니다."));
 
         User senior = User.builder()
             .name(request.getName())
@@ -67,7 +67,7 @@ public class UserService {
 
     public SeniorRegisterResponse updateSenior(Long seniorId, SeniorRegisterRequest request, Long guardianId) {
         User senior = userRepository.findById(seniorId)
-            .orElseThrow(() -> new IllegalArgumentException("피보호자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("피보호자를 찾을 수 없습니다."));
 
         if (senior.getGuardian() == null || !senior.getGuardian().getId().equals(guardianId)) {
             throw new AccessDeniedException("해당 피보호자에 대한 권한이 없습니다.");
@@ -99,7 +99,7 @@ public class UserService {
 
     public void deleteSenior(Long seniorId, Long guardianId) {
         User senior = userRepository.findById(seniorId)
-            .orElseThrow(() -> new IllegalArgumentException("피보호자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("피보호자를 찾을 수 없습니다."));
 
         if (senior.getGuardian() == null || !senior.getGuardian().getId().equals(guardianId)) {
             throw new AccessDeniedException("해당 피보호자에 대한 권한이 없습니다.");
@@ -126,14 +126,14 @@ public class UserService {
     @Transactional
     public void updateFirebaseToken(Long userId, String token) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
         user.updateFirebaseToken(token);
     }
 
     public AuthResponse loginSenior(SeniorLoginRequest request) {
         User senior = userRepository.findByEmail(request.getEmail())
             .filter(user -> user.getRole() == Role.SENIOR)
-            .orElseThrow(() -> new UsernameNotFoundException("피보호자 계정을 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("피보호자 계정을 찾을 수 없습니다."));
 
         String accessToken = jwtProvider.createToken(senior.getEmail(), senior.getRole().name());
 
@@ -143,7 +143,7 @@ public class UserService {
     @Transactional
     public void registerSeniorDevice(Long guardianId, Long seniorId, String fcmToken) {
         User senior = userRepository.findById(seniorId)
-            .orElseThrow(() -> new UsernameNotFoundException("해당 피보호자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new EntityNotFoundException("해당 피보호자를 찾을 수 없습니다."));
 
         if (senior.getGuardian() == null || !senior.getGuardian().getId().equals(guardianId)) {
             throw new AccessDeniedException("해당 피보호자에 대한 권한이 없습니다.");
