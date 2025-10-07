@@ -43,7 +43,8 @@ public class SecurityConfig {
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/swagger-resources/**",
-                    "/error"
+                    "/error",
+                    "/uploads/**"
                 ).permitAll()
                 .requestMatchers("/api/auth/login/senior").permitAll()
                 .requestMatchers("/login/oauth2/code/**", "/oauth2/authorization/**").permitAll()
