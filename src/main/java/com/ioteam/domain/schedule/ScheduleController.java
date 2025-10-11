@@ -49,4 +49,10 @@ public class ScheduleController {
         scheduleService.deleteSchedule(guardian.getId(), scheduleId);
         return ResponseEntity.ok("일정이 삭제되었습니다.");
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<ScheduleResponse>> getMySchedules(Authentication authentication) {
+        User senior = getUserByAuth(authentication);
+        return ResponseEntity.ok(scheduleService.getMySchedules(senior.getId()));
+    }
 }

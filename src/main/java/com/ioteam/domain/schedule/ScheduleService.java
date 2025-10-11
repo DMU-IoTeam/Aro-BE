@@ -75,4 +75,14 @@ public class ScheduleService {
 
         scheduleRepository.deleteById(scheduleId);
     }
+
+    @Transactional(readOnly = true)
+    public List<ScheduleResponse> getMySchedules(Long seniorId) {
+        User senior = userRepository.findById(seniorId)
+            .orElseThrow(() -> new EntityNotFoundException("피보호자를 찾을 수 없습니다."));
+
+        return scheduleRepository.findAllBySenior(senior).stream()
+            .map(ScheduleResponse::new).collect(Collectors.toList());
+    }
+
 }
