@@ -1,6 +1,5 @@
 package com.ioteam.domain.careevent;
 
-import com.ioteam.domain.careevent.dto.FallVideoClipRequest;
 import com.ioteam.domain.careevent.dto.FallVideoClipResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "Care Event", description = "돌봄 이벤트 (낙상, 침입) 관리 API")
@@ -30,8 +31,9 @@ public class FallVideoClipController {
     @PostMapping
     public ResponseEntity<FallVideoClipResponse> addClip(
         @Parameter(description = "영상을 추가할 이벤트 ID") @PathVariable Long eventId,
-        @RequestBody FallVideoClipRequest request) {
-        return ResponseEntity.ok(fallVideoClipService.addClip(eventId, request));
+        @RequestPart("video") MultipartFile videoFile,
+        @RequestPart("duration") String duration) throws IOException {
+        return ResponseEntity.ok(fallVideoClipService.addClip(eventId, videoFile, Integer.parseInt(duration)));
     }
 
     @Operation(summary = "이벤트 영상 조회", description = "특정 이벤트에 해당하는 영상 목록을 조회합니다. (보호자용)")
