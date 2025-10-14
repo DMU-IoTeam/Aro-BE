@@ -24,8 +24,9 @@ public class GameController {
     public ResponseEntity<String> uploadPhoto(
         @RequestPart("image") MultipartFile image,
         @RequestPart("caption") String caption,
+        @RequestPart("distractorOptions") String distractorOptions,
         Authentication authentication) throws IOException {
-        gameService.uploadPhoto(authentication, image, caption);
+        gameService.uploadPhoto(authentication, image, caption, distractorOptions);
         return ResponseEntity.ok("사진이 성공적으로 업로드되었습니다.");
     }
 

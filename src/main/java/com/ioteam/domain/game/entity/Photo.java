@@ -26,6 +26,9 @@ public class Photo {
     @Column(nullable = false)
     private String caption;
 
+    @Column(nullable = false)
+    private String distractorOptions;
+
     private LocalDateTime uploadedAt;
 
     @PrePersist

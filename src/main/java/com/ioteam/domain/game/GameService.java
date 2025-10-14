@@ -37,7 +37,7 @@ public class GameService {
     }
 
     @Transactional
-    public void uploadPhoto(Authentication authentication, MultipartFile image, String caption) throws IOException {
+    public void uploadPhoto(Authentication authentication, MultipartFile image, String caption, String distractorOptions) throws IOException {
         User guardian = getUserByAuth(authentication);
 
         String imageUrl = fileUploadService.upload(image, "photos");
@@ -50,6 +50,7 @@ public class GameService {
             .guardian(guardian)
             .imageUrl(imageUrl)
             .caption(caption)
+            .distractorOptions(distractorOptions)
             .build();
 
         photoRepository.save(photo);
