@@ -31,7 +31,7 @@ public class NotificationScheduler {
             if (senior != null && senior.getFirebaseToken() != null) {
                 String message = senior.getName() + " 님, 약 드실 시간입니다.";
                 notificationService.sendPushNotification(
-                    senior.getFirebaseToken(), "복약 알림", message);
+                    senior.getFirebaseToken(), "복약 알림", message, null);
             }
         }
     }
@@ -47,7 +47,7 @@ public class NotificationScheduler {
             if (senior != null && senior.getFirebaseToken() != null) {
                 String message = senior.getName() + " 님, 곧 '" + schedule.getTitle() + "' 일정이 있습니다.";
                 notificationService.sendPushNotification(
-                    senior.getFirebaseToken(), "일정 알림", message);
+                    senior.getFirebaseToken(), "일정 알림", message, null);
             }
         }
     }
