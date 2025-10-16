@@ -7,6 +7,7 @@ import com.ioteam.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -46,6 +47,7 @@ public class SecurityConfig {
                     "/error",
                     "/uploads/**"
                 ).permitAll()
+                .requestMatchers("/api/care-events/**").permitAll()
                 .requestMatchers("/api/auth/login/senior").permitAll()
                 .requestMatchers("/login/oauth2/code/**", "/oauth2/authorization/**").permitAll()
                 .anyRequest().authenticated()
