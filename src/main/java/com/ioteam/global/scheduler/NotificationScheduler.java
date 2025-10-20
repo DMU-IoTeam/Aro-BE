@@ -22,6 +22,7 @@ public class NotificationScheduler {
     private final NotificationService notificationService;
 
     @Scheduled(cron = "0 * * * * *")
+    @Transactional(readOnly = true)
     public void sendMedicationNotifications() {
         LocalTime now = LocalTime.now().withSecond(0).withNano(0);
         List<MedicationSchedule> schedules = medicationScheduleRepository.findAllByTime(now);
@@ -37,6 +38,7 @@ public class NotificationScheduler {
     }
 
     @Scheduled(cron = "0 * * * * *")
+    @Transactional(readOnly = true)
     public void sendScheduleNotifications() {
         LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
         LocalDateTime oneMinuteLater = now.plusMinutes(1);
