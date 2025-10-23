@@ -38,7 +38,7 @@ public class MedicationService {
     }
 
     private void checkGuardianPermission(MedicationSchedule schedule, Long guardianId) {
-        if (!schedule.getCreatedBy().getId().equals(guardianId)) {
+        if (schedule.getCreatedBy() == null || !schedule.getCreatedBy().getId().equals(guardianId)) {
             throw new ForbiddenException("수정/삭제 권한이 없습니다.");
         }
     }
@@ -54,25 +54,24 @@ public class MedicationService {
             .time(request.getTime())
             .build();
 
-        MedicationSchedule savedSchedule = scheduleRepository.save(schedule);
-
         List<MedicationItem> items = request.getItems().stream()
-            .map(i -> MedicationItem.builder().schedule(savedSchedule).name(i.getName()).memo(i.getMemo()).build())
+            .map(i -> MedicationItem.builder().schedule(schedule).name(i.getName()).memo(i.getMemo()).build())
             .collect(Collectors.toList());
 
-        itemRepository.saveAll(items);
+        schedule.setItems(items);
+        MedicationSchedule savedSchedule = scheduleRepository.save(schedule);
 
         return new MedicationScheduleResponse(
             savedSchedule.getId(),
-            senior.getId(),
+            savedSchedule.getUser().getId(),
             savedSchedule.getTime(),
-            items.stream().map(i -> new MedicationItemResponse(i.getId(), i.getName(), i.getMemo())).toList()
+            savedSchedule.getItems().stream().map(i -> new MedicationItemResponse(i.getId(), i.getName(), i.getMemo())).toList()
         );
     }
 
     @Transactional(readOnly = true)
     public List<MedicationScheduleResponse> getSchedulesBySenior(Long seniorId) {
-        List<MedicationSchedule> schedules = scheduleRepository.findByUserId(seniorId);
+        List<MedicationSchedule> schedules = scheduleRepository.findByUserIdWithItems(seniorId);
         return schedules.stream().map(s -> new MedicationScheduleResponse(
             s.getId(),
             s.getUser().getId(),
@@ -84,10 +83,8 @@ public class MedicationService {
     @Transactional
     public MedicationScheduleResponse updateSchedule(Long scheduleId, MedicationScheduleRequest request, Long guardianId) {
         MedicationSchedule schedule = getScheduleOrThrow(scheduleId);
-        User guardian = getUserOrThrow(guardianId);
-        checkGuardianPermission(schedule, guardian.getId());
+        checkGuardianPermission(schedule, guardianId);
 
-        itemRepository.deleteAll(schedule.getItems());
         List<MedicationItem> updatedItems = request.getItems().stream()
             .map(i -> MedicationItem.builder()
                 .schedule(schedule)
@@ -96,19 +93,14 @@ public class MedicationService {
                 .build())
             .collect(Collectors.toList());
 
-        schedule.getItems().clear();
-        schedule.getItems().addAll(updatedItems);
+        schedule.updateItems(updatedItems);
         schedule.changeTime(request.getTime());
-        scheduleRepository.save(schedule);
-        itemRepository.saveAll(updatedItems);
-
-        MedicationSchedule updatedSchedule = getScheduleOrThrow(scheduleId);
 
         return new MedicationScheduleResponse(
-            updatedSchedule.getId(),
-            updatedSchedule.getUser().getId(),
-            updatedSchedule.getTime(),
-            updatedSchedule.getItems().stream()
+            schedule.getId(),
+            schedule.getUser().getId(),
+            schedule.getTime(),
+            schedule.getItems().stream()
                 .map(i -> new MedicationItemResponse(i.getId(), i.getName(), i.getMemo()))
                 .toList()
         );
@@ -118,7 +110,7 @@ public class MedicationService {
     public void deleteSchedule(Long scheduleId, Long guardianId) {
         MedicationSchedule schedule = getScheduleOrThrow(scheduleId);
         checkGuardianPermission(schedule, guardianId);
-        scheduleRepository.deleteById(scheduleId);
+        scheduleRepository.delete(schedule);
     }
 
     @Transactional

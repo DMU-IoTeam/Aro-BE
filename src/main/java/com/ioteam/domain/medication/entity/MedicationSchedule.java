@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalTime;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,8 +29,8 @@ public class MedicationSchedule {
     @JoinColumn(name = "created_by")
     private User createdBy;
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MedicationItem> items;
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<MedicationItem> items = new ArrayList<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -46,5 +47,16 @@ public class MedicationSchedule {
 
     public void changeTime(LocalTime time) {
         this.time = time;
+    }
+
+    public void updateItems(List<MedicationItem> newItems) {
+        this.items.clear();
+        if (newItems != null) {
+            this.items.addAll(newItems);
+        }
+    }
+
+    public void setItems(List<MedicationItem> items) {
+        this.items = items;
     }
 }
